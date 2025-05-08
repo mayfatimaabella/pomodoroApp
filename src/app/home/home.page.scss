@@ -25,3 +25,70 @@
 #container a {
   text-decoration: none;
 }
+
+ion-toolbar {
+  ion-title {
+    text-align: center;
+  }
+}
+
+ion-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+ion-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  background-color: #f9f9f9; // Light background color
+
+  ion-text {
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 20px; // Large font size for the timer
+      font-weight: bold;
+      color: #000;
+      margin: 0;
+    }
+  }
+
+  div {
+    margin-top: 20px;
+
+    button {
+      width: 150px;
+      height: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin: 10px;
+
+      &:first-child {
+        background-color: #4caf50; // Green for "Start"
+        color: #fff;
+      }
+
+      &:last-child {
+        background-color: #fff; // White for "Reset"
+        color: #4caf50;
+        border: 2px solid #4caf50;
+      }
+
+      &:disabled {
+        background-color: #ccc; // Gray for disabled state
+        color: #666;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+

@@ -1,11 +1,12 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Pomodoro App</ion-title>
+    <ion-title>Pomodoro</ion-title>
   </ion-toolbar>
+
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-text>
+  <ion-text >
     <h1>{{ time }}</h1>
   </ion-text>
 
@@ -14,8 +15,9 @@
   </div>
 
   <div>
-    <button (click)="startPomodoro()" [disabled]="isRunning">Start Pomodoro Cycle</button>
-    <h2 *ngIf="countdown">Countdown: {{ countdown }}</h2>
+    <button (click)="startPomodoro()" [disabled]="isRunning">Start</button> <br>
+    <button (click)="pausePomodoro()" [disabled]="!isRunning">Pause</button>
+    <h2 *ngIf="countdown"> {{ countdown }}</h2>
   </div>
 
   <div *ngIf="completedPomodoros > 0">

@@ -46,7 +46,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.isBreak = false;
     this.sessionLabel = 'Pomodoro Session';
 
-    const endTime = Date.now() + 25 * 60 * 1000;
+    const endTime = Date.now() + 1 * 60 * 1000;
 
     this.countdownInterval = setInterval(() => {
       const remainingTime = endTime - Date.now();
@@ -60,6 +60,14 @@ export class HomePage implements OnInit, OnDestroy {
       }
       this.updateCountdown(remainingTime);
     }, 1000);
+  }
+
+  pausePomodoro() {
+    if (this.countdownInterval) {
+        clearInterval(this.countdownInterval);
+        this.countdownInterval = null;
+    }
+    this.isRunning = false;
   }
 
   startBreak() {
