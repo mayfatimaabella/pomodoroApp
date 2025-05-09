@@ -10,8 +10,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
   standalone: false,
 })
 export class HomePage implements OnInit, OnDestroy {
-
-  time: string | any;
+  time: string = '';
   countdown: string | null = null;
   isBreak: boolean = false;
   isRunning: boolean = false;
@@ -19,14 +18,18 @@ export class HomePage implements OnInit, OnDestroy {
   private countdownInterval: any;
   completedPomodoros: number = 0;
   sessionLabel: string = '';
-
+  pomodoroDuration: number = 25;
+  breakDuration: number = 5;
   constructor(private platform: Platform) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.currentTime();
     this.interval = setInterval(() => this.currentTime(), 1000);
 
-    LocalNotifications.requestPermissions();
+    const permResult = await LocalNotifications.requestPermissions();
+    if (permResult.display !== 'granted') {
+      console.warn('Local notifications not permitted.');
+    }
 
     this.platform.backButton.subscribeWithPriority(10, () => {
       App.exitApp();
@@ -34,8 +37,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   currentTime() {
-    const timeNow = new Date();
-    this.time = timeNow.toLocaleTimeString();
+    this.time = new Date().toLocaleTimeString();
   }
 
   startPomodoro() {
@@ -45,7 +47,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.isBreak = false;
     this.sessionLabel = 'Pomodoro Session';
 
-    const endTime = Date.now() + 1 * 60 * 1000;
+    const endTime = Date.now() + this.pomodoroDuration * 60 * 1000;
 
     this.countdownInterval = setInterval(() => {
       const remainingTime = endTime - Date.now();
@@ -53,7 +55,7 @@ export class HomePage implements OnInit, OnDestroy {
         clearInterval(this.countdownInterval);
         this.countdown = "Time's up!";
         this.completedPomodoros++;
-        this.notifyUser('Pomodoro Complete!', 'Take a short or long break.');
+        this.notifyUser('Pomodoro Complete!', 'Take a break.');
         this.startBreak();
         return;
       }
@@ -76,7 +78,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.isBreak = true;
     const isLongBreak = this.completedPomodoros % 4 === 0;
-    const breakMinutes = isLongBreak ? 15 : 5;
+    const breakMinutes = isLongBreak ? this.breakDuration + 10 : this.breakDuration;
     this.sessionLabel = isLongBreak ? 'Long Break' : 'Short Break';
 
     const endTime = Date.now() + breakMinutes * 60 * 1000;
@@ -101,17 +103,16 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async notifyUser(title: string, body: string) {
-
     try {
       await LocalNotifications.schedule({
         notifications: [
           {
-            id: Date.now(),
-            title: title,
-            body: body,
+            id: Math.floor(Math.random() * 10000),
+            title,
+            body,
             schedule: { at: new Date(Date.now() + 100) },
-            sound: undefined,
-            smallIcon: 'ic_stat_icon_config_sample', 
+            smallIcon: 'ic_stat_icon_config_sample',
+            sound: 'beep.aiff',
           },
         ],
       });
@@ -119,9 +120,8 @@ export class HomePage implements OnInit, OnDestroy {
       console.warn('Notification failed:', error);
     }
 
-
     const audio = new Audio('assets/audio/notification.mp3');
-    audio.play();
+    audio.play().catch(() => console.warn('Audio playback failed.'));
 
     if (navigator.vibrate) {
       navigator.vibrate([200, 100, 200]);
