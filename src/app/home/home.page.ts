@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { App } from '@capacitor/app';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 @Component({
   selector: 'app-home',
@@ -25,9 +26,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.currentTime();
     this.interval = setInterval(() => this.currentTime(), 1000);
 
-    if ('Notification' in window) {
-      Notification.requestPermission();
-    }
+    LocalNotifications.requestPermissions();
 
     this.platform.backButton.subscribeWithPriority(10, () => {
       App.exitApp();
@@ -64,8 +63,8 @@ export class HomePage implements OnInit, OnDestroy {
 
   pausePomodoro() {
     if (this.countdownInterval) {
-        clearInterval(this.countdownInterval);
-        this.countdownInterval = null;
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
     }
     this.isRunning = false;
   }
@@ -101,13 +100,25 @@ export class HomePage implements OnInit, OnDestroy {
     this.countdown = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   }
 
-  notifyUser(title: string, body: string) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body: body,
-        icon: 'assets/icon/pomodoro.png',
+  async notifyUser(title: string, body: string) {
+
+    try {
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: Date.now(),
+            title: title,
+            body: body,
+            schedule: { at: new Date(Date.now() + 100) },
+            sound: undefined,
+            smallIcon: 'ic_stat_icon_config_sample', 
+          },
+        ],
       });
+    } catch (error) {
+      console.warn('Notification failed:', error);
     }
+
 
     const audio = new Audio('assets/audio/notification.mp3');
     audio.play();
